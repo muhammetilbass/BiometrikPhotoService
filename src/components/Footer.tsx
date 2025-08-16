@@ -33,11 +33,7 @@ export default function Footer() {
                   Ehliyet Fotoğrafı
                 </Link>
               </li>
-              <li>
-                <Link href="/vize-fotografi" className="text-muted-foreground hover:text-primary text-sm transition-colors">
-                  Vize Başvurusu
-                </Link>
-              </li>
+
               <li>
                 <Link href="/standartlar" className="text-muted-foreground hover:text-primary text-sm transition-colors">
                   Tüm Belge Standartları

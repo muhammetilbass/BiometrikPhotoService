@@ -83,34 +83,7 @@ export default function FotografStandartlari() {
             </div>
           </section>
           
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">Uluslararası Vize Başvuruları</h2>
-            <div className="bg-white border rounded-lg p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="text-xl font-medium mb-3">Schengen Vizesi</h3>
-                  <ul className="list-disc pl-6 space-y-2">
-                    <li>Boyut: 35x45 mm</li>
-                    <li>Arka plan: Beyaz veya açık renk</li>
-                    <li>Son 6 ay içinde çekilmiş</li>
-                    <li>Baş boyutu: Fotoğrafın %70-80'ini kapsamalı</li>
-                    <li>Dijital manipülasyon olmadan</li>
-                  </ul>
-                </div>
-                
-                <div>
-                  <h3 className="text-xl font-medium mb-3">Amerika Birleşik Devletleri</h3>
-                  <ul className="list-disc pl-6 space-y-2">
-                    <li>Boyut: 2x2 inç (51x51 mm)</li>
-                    <li>Baş boyutu: 1 inç ile 1 3/8 inç (25-35 mm)</li>
-                    <li>Yüz kameraya dönük, gözler açık</li>
-                    <li>Beyaz veya açık renkli arka plan</li>
-                    <li>Normal günlük kıyafet</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </section>
+
           
           <section>
             <h2 className="text-2xl font-semibold mb-4">İş Başvuruları İçin Fotoğraf Standartları</h2>

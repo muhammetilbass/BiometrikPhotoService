@@ -7,13 +7,7 @@ export interface PhotoUploadResponse {
   error?: string;
 }
 
-export interface PhotoStatusResponse {
-  id: string;
-  status: string;
-  originalUrl: string;
-  processedUrl: string | null;
-  error?: string;
-}
+
 
 export const photoService = {
   // Fotoğraf yükleme ve işleme (tek işlem)
@@ -21,13 +15,22 @@ export const photoService = {
     try {
       const formData = new FormData();
       formData.append('photo', file);
-      formData.append('documentType', documentType);  // Belge tipini ekle
+      formData.append('document_type', documentType);  // Belge tipini ekle
       
       console.log('PhotoService: Fotoğraf yükleniyor ve işleniyor...', {
         fileName: file.name,
         fileSize: file.size,
         documentType
       });
+      
+      // FormData doğrulaması
+      if (!file || file.size === 0) {
+        throw new Error('Geçerli bir fotoğraf dosyası seçiniz');
+      }
+      
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        throw new Error('Dosya boyutu 5MB\'dan küçük olmalıdır');
+      }
       
       // Relative URL kullan - apiClient yerine fetch
       const response = await fetch('/api/photos/upload', {
@@ -38,8 +41,18 @@ export const photoService = {
       console.log('PhotoService: Response status:', response.status);
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Bilinmeyen hata' }));
-        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({ message: 'Sunucu hatası' }));
+        
+        // Spesifik hata mesajları
+        if (response.status === 400) {
+          throw new Error(errorData.message || 'Geçersiz istek. Lütfen dosya formatını kontrol edin.');
+        } else if (response.status === 413) {
+          throw new Error('Dosya boyutu çok büyük. Maksimum 5MB olmalıdır.');
+        } else if (response.status === 503) {
+          throw new Error('Fotoğraf işleme servisi çalışmıyor. Lütfen daha sonra tekrar deneyin.');
+        } else {
+          throw new Error(errorData.message || errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+        }
       }
       
       const data = await response.json();
@@ -62,41 +75,9 @@ export const photoService = {
     }
   },
 
-  // Geriye uyumluluk için eski method
-  async uploadPhoto(file: File): Promise<PhotoUploadResponse> {
-    return this.uploadAndProcessPhoto(file);
-  },
 
-  // Fotoğraf işleme (geriye uyumluluk için)
-  async processPhoto(data: { id: string; documentType: string }): Promise<PhotoUploadResponse> {
-    console.log('PhotoService: processPhoto çağrıldı, ancak artık upload sırasında işlem yapılıyor', data);
-    
-    // Bu method artık gereksiz çünkü upload sırasında işlem yapıyoruz
-    // Ama geriye uyumluluk için mock response döndürüyoruz
-    return {
-      id: data.id,
-      originalUrl: '',
-      processedUrl: '',
-      status: 'completed',
-      message: 'İşlem upload sırasında tamamlandı'
-    };
-  },
 
-  // Fotoğraf durumunu kontrol etme (şimdilik mock)
-  async checkPhotoStatus(id: string): Promise<PhotoStatusResponse> {
-    try {
-      const response = await fetch(`/api/photos/status?id=${id}`);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      return await response.json();
-    } catch (error) {
-      console.error('PhotoService: Status check error:', error);
-      throw error;
-    }
-  },
+
 
   // API health check
   async checkHealth(): Promise<any> {

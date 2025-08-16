@@ -22,16 +22,16 @@ const documentTypes: DocumentType[] = [
     icon: <Plane className="w-8 h-8" />,
     color: 'text-blue-600',
     size: '50x60 mm',
-    background: 'Çok Açık Gri'
+    background: 'Açık Gri'
   },
   {
     id: 'kimlik',
-    name: 'Kimlik Kartı Fotoğrafı',
+    name: 'T.C. Kimlik Kartı Fotoğrafı',
     description: 'Nüfus müdürlüğü standartları',
     icon: <CreditCard className="w-8 h-8" />,
     color: 'text-red-600',
     size: '50x60 mm',
-    background: 'Çok Açık Gri'
+    background: 'Beyaz'
   },
   {
     id: 'ehliyet',
@@ -40,14 +40,24 @@ const documentTypes: DocumentType[] = [
     icon: <Car className="w-8 h-8" />,
     color: 'text-green-600',
     size: '50x60 mm',
-    background: 'Çok Açık Gri'
+    background: 'Beyaz'
+  },
+
+  {
+    id: 'ogrenci',
+    name: 'Öğrenci Kartı Fotoğrafı',
+    description: 'Okul standartlarına uygun',
+    icon: <GraduationCap className="w-8 h-8" />,
+    color: 'text-indigo-600',
+    size: '50x60 mm',
+    background: 'Beyaz'
   },
   {
-    id: 'vize',
-    name: 'Vize Fotoğrafı',
-    description: 'Uluslararası standartlar',
-    icon: <FileImage className="w-8 h-8" />,
-    color: 'text-purple-600',
+    id: 'osym',
+    name: 'ÖSYM Sınav Fotoğrafı',
+    description: 'YKS, AYT, TYT standartları',
+    icon: <User className="w-8 h-8" />,
+    color: 'text-orange-600',
     size: '50x60 mm',
     background: 'Beyaz'
   },
@@ -56,18 +66,9 @@ const documentTypes: DocumentType[] = [
     name: 'İş Başvuru Fotoğrafı',
     description: 'Profesyonel görünüm',
     icon: <Briefcase className="w-8 h-8" />,
-    color: 'text-orange-600',
+    color: 'text-teal-600',
     size: '50x60 mm',
     background: 'Beyaz'
-  },
-  {
-    id: 'ogrenci',
-    name: 'Öğrenci Kartı Fotoğrafı',
-    description: 'Okul standartlarına uygun',
-    icon: <GraduationCap className="w-8 h-8" />,
-    color: 'text-indigo-600',
-    size: '50x60 mm',
-    background: 'Çok Açık Gri'
   }
 ];
 
@@ -105,14 +106,28 @@ export default function PhotoCreationModal({ isOpen, onClose }: PhotoCreationMod
     setError(null);
 
     try {
-      // Simulated processing - replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Create a mock processed image URL
-      const imageUrl = URL.createObjectURL(uploadedFile);
-      setProcessedImage(imageUrl);
-      setCurrentStep('result');
+      const formData = new FormData();
+      formData.append('photo', uploadedFile);
+      formData.append('document_type', selectedDocument.id);
+
+      const response = await fetch('/api/photos/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      if (result.processedUrl) {
+        setProcessedImage(result.processedUrl);
+        setCurrentStep('result');
+      } else {
+        throw new Error('İşlenmiş fotoğraf URL\'si alınamadı');
+      }
     } catch (err) {
+      console.error('Processing error:', err);
       setError('Fotoğraf işlenirken bir hata oluştu. Lütfen tekrar deneyin.');
     } finally {
       setIsProcessing(false);
@@ -235,11 +250,32 @@ export default function PhotoCreationModal({ isOpen, onClose }: PhotoCreationMod
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Upload Area */}
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 hover:bg-gray-50 transition-colors">
-                  <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h4 className="text-lg font-semibold mb-2">Fotoğraf Yükle</h4>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Fotoğrafınızı seçin
+                <div 
+                  className="relative border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 group cursor-pointer"
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.classList.add('border-blue-500', 'bg-blue-50');
+                  }}
+                  onDragLeave={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.classList.remove('border-blue-500', 'bg-blue-50');
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.classList.remove('border-blue-500', 'bg-blue-50');
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                      setUploadedFile(files[0]);
+                      setCurrentStep('process');
+                    }
+                  }}
+                  onClick={() => document.getElementById('file-upload')?.click()}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <Upload className="w-16 h-16 text-gray-400 group-hover:text-blue-500 mx-auto mb-4 transition-colors duration-300 group-hover:scale-110" />
+                  <h4 className="text-xl font-bold mb-2 group-hover:text-blue-600 transition-colors">Fotoğraf Yükle</h4>
+                  <p className="text-sm text-gray-600 mb-6 group-hover:text-gray-700">
+                    Fotoğrafınızı sürükleyip bırakın veya tıklayın
                   </p>
                   <input
                     type="file"
@@ -248,28 +284,24 @@ export default function PhotoCreationModal({ isOpen, onClose }: PhotoCreationMod
                     className="hidden"
                     id="file-upload"
                   />
-                  <Button asChild className="w-full">
-                    <label htmlFor="file-upload" className="cursor-pointer">
-                      Dosya Seç
-                    </label>
-                  </Button>
+                  <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform group-hover:scale-105 opacity-0 group-hover:opacity-100">
+                    <Upload className="mr-2 h-4 w-4" />
+                    Belge Seç
+                  </div>
                 </div>
 
                 {/* Camera Option */}
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 hover:bg-gray-50 transition-colors">
-                  <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h4 className="text-lg font-semibold mb-2">Fotoğraf Çek</h4>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Kameranızla fotoğraf çekin
+                <div className="relative border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-green-400 hover:bg-gradient-to-br hover:from-green-50 hover:to-emerald-50 transition-all duration-300 group cursor-pointer" onClick={() => setIsCameraOpen(true)}>
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <Camera className="w-16 h-16 text-gray-400 group-hover:text-green-500 mx-auto mb-4 transition-colors duration-300 group-hover:scale-110" />
+                  <h4 className="text-xl font-bold mb-2 group-hover:text-green-600 transition-colors">Fotoğraf Çek</h4>
+                  <p className="text-sm text-gray-600 mb-6 group-hover:text-gray-700">
+                    Kameranızla anlık fotoğraf çekin
                   </p>
-                  <Button
-                    onClick={() => setIsCameraOpen(true)}
-                    variant="outline"
-                    className="w-full"
-                  >
+                  <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform group-hover:scale-105 opacity-0 group-hover:opacity-100">
                     <Camera className="mr-2 h-4 w-4" />
                     Kamera Aç
-                  </Button>
+                  </div>
                 </div>
               </div>
 

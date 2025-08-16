@@ -64,22 +64,7 @@ DOCUMENT_STANDARDS = {
             'color_balance': True
         }
     },
-    'vize': {
-        'name': 'Vize Başvurusu',
-        'size_mm': (35, 45),  # Schengen standartı
-        'size_pixels': (413, 531),
-        'head_height_mm': (32, 36),
-        'head_ratio': 0.7,
-        'background_color': (245, 245, 245),  # Açık gri
-        'face_position': 'center',
-        'padding_ratio': 0.8,
-        'enhancement': {
-            'sharpening': 0.4,
-            'brightness': 0.03,
-            'contrast': 0.08,
-            'color_balance': True
-        }
-    },
+
     'osym': {
         'name': 'ÖSYM Sınavları',
         'size_mm': (50, 60),
@@ -141,6 +126,22 @@ DOCUMENT_STANDARDS = {
             'sharpening': 0.5,
             'brightness': 0.05,
             'contrast': 0.1,
+            'color_balance': True
+        }
+    },
+    'is-basvuru': {
+        'name': 'İş Başvuru Fotoğrafı',
+        'size_mm': (50, 60),
+        'size_pixels': (590, 708),
+        'head_height_mm': (30, 36),
+        'head_ratio': 0.7,
+        'background_color': (255, 255, 255),  # Beyaz
+        'face_position': 'center',
+        'padding_ratio': 0.7,
+        'enhancement': {
+            'sharpening': 0.6,
+            'brightness': 0.08,
+            'contrast': 0.12,
             'color_balance': True
         }
     }
@@ -243,6 +244,10 @@ def process_photo():
         padding_ratio = standards['padding_ratio']
         crop_size = int(max(face_width, face_height) * (2.0 + padding_ratio))
         
+        # Minimum kırpma boyutu kontrolü
+        min_crop_size = max(face_width, face_height)
+        crop_size = max(crop_size, min_crop_size)
+        
         # Kare alanın koordinatlarını hesapla
         half_crop = crop_size // 2
         crop_left = max(0, face_center_x - half_crop)
@@ -250,18 +255,26 @@ def process_photo():
         crop_top = max(0, face_center_y - half_crop)
         crop_bottom = min(img_height, face_center_y + half_crop)
         
-        # Kenarlardan taşma kontrolü
-        if crop_right - crop_left < crop_size:
+        # Kenarlardan taşma kontrolü ve negatif değer önleme
+        if crop_right - crop_left < min_crop_size:
             if crop_left == 0:
-                crop_right = min(img_width, crop_size)
+                crop_right = min(img_width, min_crop_size)
             else:
-                crop_left = max(0, img_width - crop_size)
+                crop_left = max(0, img_width - min_crop_size)
                 
-        if crop_bottom - crop_top < crop_size:
+        if crop_bottom - crop_top < min_crop_size:
             if crop_top == 0:
-                crop_bottom = min(img_height, crop_size)
+                crop_bottom = min(img_height, min_crop_size)
             else:
-                crop_top = max(0, img_height - crop_size)
+                crop_top = max(0, img_height - min_crop_size)
+        
+        # Final kontrol: negatif boyutları önle
+        crop_width = crop_right - crop_left
+        crop_height = crop_bottom - crop_top
+        
+        if crop_width <= 0 or crop_height <= 0:
+            logger.error(f"Geçersiz kırpma boyutları: {crop_width}x{crop_height}")
+            return jsonify({'error': 'Fotoğraf çok küçük veya yüz tespit edilemedi. Daha büyük bir fotoğraf deneyin.'}), 400
         
         # Kırpılmış alanı al
         cropped_img = img[crop_top:crop_bottom, crop_left:crop_right]
@@ -310,9 +323,15 @@ def process_photo():
         return send_file(buf, mimetype='image/jpeg', as_attachment=True, 
                         download_name=f'processed-{document_type}.jpg')
 
+    except ValueError as e:
+        logger.error(f"Değer hatası: {str(e)}")
+        return jsonify({'error': 'Geçersiz fotoğraf formatı veya boyutu'}), 400
+    except MemoryError as e:
+        logger.error(f"Bellek hatası: {str(e)}")
+        return jsonify({'error': 'Fotoğraf çok büyük, daha küçük bir dosya deneyin'}), 413
     except Exception as e:
-        logger.error(f"Hata: {str(e)}")
-        return jsonify({'error': f'İşlem hatası: {str(e)}'}), 500
+        logger.error(f"Beklenmeyen hata: {str(e)}")
+        return jsonify({'error': 'Fotoğraf işlenirken bir hata oluştu. Lütfen tekrar deneyin.'}), 500
 
 @app.route('/document-types', methods=['GET'])
 def get_document_types():

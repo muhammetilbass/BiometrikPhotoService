@@ -19,7 +19,7 @@ function IndirmeIcerik() {
       ad: 'Pasaport Biyometrik Fotoğraf',
       boyut: '1.2 MB',
       indirildi: false,
-      url: '#', // Gerçek durumda bu bir URL olacak
+      url: '#',
       format: 'JPEG (35x45mm)'
     },
     {
@@ -27,7 +27,7 @@ function IndirmeIcerik() {
       ad: 'Biyometrik Fotoğraf A4 Baskı',
       boyut: '3.5 MB',
       indirildi: false,
-      url: '#', // Gerçek durumda bu bir URL olacak
+      url: '#',
       format: 'PDF (A4)'
     },
     {
@@ -35,7 +35,7 @@ function IndirmeIcerik() {
       ad: 'Dijital Kullanım Dosyası',
       boyut: '820 KB',
       indirildi: false,
-      url: '#', // Gerçek durumda bu bir URL olacak
+      url: '#',
       format: 'JPEG (Yüksek Çözünürlük)'
     },
   ]);
@@ -51,9 +51,6 @@ function IndirmeIcerik() {
   }, [indirilenler]);
   
   const dosyaIndir = (id: string) => {
-    // Normalde burada gerçek bir indirme işlemi yapılacak
-    // Şimdilik simülasyon yapıyoruz
-    
     setIndirilenler(prev => 
       prev.map(dosya => 
         dosya.id === id ? { ...dosya, indirildi: true } : dosya
@@ -62,12 +59,9 @@ function IndirmeIcerik() {
   };
   
   const tumDosyalariIndir = () => {
-    // Tüm dosyaları tek tek indir
     indirilenler.forEach(dosya => {
       if (!dosya.indirildi) {
-        setTimeout(() => {
-          dosyaIndir(dosya.id);
-        }, 800 * Math.random()); // Rastgele gecikme ile indirme simülasyonu
+        dosyaIndir(dosya.id);
       }
     });
   };

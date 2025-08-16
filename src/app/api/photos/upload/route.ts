@@ -11,12 +11,44 @@ export async function POST(request: Request) {
     console.log('Upload API: İstek alındı');
     
     const formData = await request.formData();
+    
+    // FormData doğrulaması
+    console.log('Upload API: FormData alındı, doğrulanıyor...');
+    
     const file = formData.get('photo') as File;
+    const documentType = formData.get('document_type') as string;
     
     if (!file) {
       console.error('Upload API: Fotoğraf bulunamadı');
       return NextResponse.json(
         { message: 'Fotoğraf bulunamadı' },
+        { status: 400 }
+      );
+    }
+    
+    if (!documentType) {
+      console.error('Upload API: Belge tipi bulunamadı');
+      return NextResponse.json(
+        { message: 'Belge tipi bulunamadı' },
+        { status: 400 }
+      );
+    }
+
+    // Dosya boyutu kontrolü (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      console.error('Upload API: Dosya boyutu çok büyük:', file.size);
+      return NextResponse.json(
+        { message: 'Dosya boyutu 5MB\'dan küçük olmalıdır' },
+        { status: 400 }
+      );
+    }
+
+    // Dosya tipi kontrolü
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!allowedTypes.includes(file.type)) {
+      console.error('Upload API: Desteklenmeyen dosya tipi:', file.type);
+      return NextResponse.json(
+        { message: 'Sadece JPEG, JPG ve PNG dosyaları desteklenmektedir' },
         { status: 400 }
       );
     }
@@ -46,12 +78,20 @@ export async function POST(request: Request) {
     
     const flaskFormData = new FormData();
     flaskFormData.append('file', file);
+    flaskFormData.append('document_type', documentType);
 
     try {
+      // Flask servisine timeout ile istek gönder
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 saniye timeout
+      
       const flaskResponse = await fetch(`${FLASK_URL}/process`, {
         method: 'POST',
         body: flaskFormData,
+        signal: controller.signal,
       });
+      
+      clearTimeout(timeoutId);
 
       console.log(`Upload API: Flask yanıt durumu: ${flaskResponse.status}`);
 
@@ -93,16 +133,26 @@ export async function POST(request: Request) {
         message: 'Fotoğraf başarıyla işlendi'
       });
 
-    } catch (fetchError) {
+    } catch (fetchError: any) {
       console.error('Upload API: Flask bağlantı hatası:', fetchError);
+      
+      let errorMessage = 'Flask servisi çalışmıyor. Lütfen biometrik_service.py dosyasını çalıştırdığınızdan emin olun.';
+      let statusCode = 503;
+      
+      if (fetchError.name === 'AbortError') {
+        errorMessage = 'İşlem zaman aşımına uğradı. Lütfen tekrar deneyin.';
+        statusCode = 408;
+      } else if (fetchError.code === 'ECONNREFUSED') {
+        errorMessage = 'Flask servisi bağlantısı reddedildi. Servis çalışmıyor olabilir.';
+      }
       
       return NextResponse.json({
         id: uniqueId,
         originalUrl: `/uploads/${originalFileName}`,
         status: 'error',
-        error: 'Flask servisi çalışmıyor. Lütfen biometrik_service.py dosyasını çalıştırdığınızdan emin olun.',
+        error: errorMessage,
         instruction: 'Terminal açıp "python biometrik_service.py" komutunu çalıştırın'
-      }, { status: 503 });
+      }, { status: statusCode });
     }
 
   } catch (error) {

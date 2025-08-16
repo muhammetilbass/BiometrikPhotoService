@@ -55,7 +55,6 @@ python biometrik_service.py
 
 - **ICAO 9303**: Uluslararası sivil havacılık standartları
 - **NVI**: Türkiye Nüfus ve Vatandaşlık İşleri standartları
-- **Schengen**: AB vize standartları
 - **ÖSYM**: Türkiye sınav sistemi standartları
 
 ## API Endpoints

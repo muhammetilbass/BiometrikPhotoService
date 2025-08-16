@@ -7,6 +7,7 @@ import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { photoService } from '@/lib/api';
 import { ArrowUpTrayIcon, PhotoIcon, CameraIcon, InformationCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import DocumentIcon from '@/components/DocumentIcon';
 
 export default function PasaportPage() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -425,10 +426,7 @@ export default function PasaportPage() {
                 </p>
                 <ul className="space-y-2 text-gray-600">
                   <li>• Türkiye Cumhuriyeti Pasaportu</li>
-                  <li>• Schengen Vize Başvuruları</li>
-                  <li>• ABD Vize Başvuruları</li>
-                  <li>• İngiltere Vize Başvuruları</li>
-                  <li>• Diğer uluslararası vize başvuruları</li>
+                  <li>• Uluslararası seyahat belgeleri</li>
                 </ul>
               </div>
             </div>
@@ -438,32 +436,19 @@ export default function PasaportPage() {
           <div className="text-center">
             <h2 className="text-2xl font-semibold text-gray-900 mb-6">Diğer Belge Tipleri</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <Link href="/ehliyet-fotografi" className="p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <div className="w-8 h-10 bg-green-600 rounded-sm flex items-center justify-center">
-                    <div className="w-5 h-5 bg-white rounded-full"></div>
-                  </div>
-                </div>
-                <p className="font-medium text-sm">Ehliyet</p>
-              </Link>
+              <DocumentIcon 
+                href="/ehliyet-fotografi" 
+                title="Ehliyet" 
+                bgColor="green" 
+                iconColor="green" 
+              />
               
-              <Link href="/kimlik-karti-fotografi" className="p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <div className="w-8 h-10 bg-red-600 rounded-sm flex items-center justify-center">
-                    <div className="w-5 h-5 bg-white rounded-full"></div>
-                  </div>
-                </div>
-                <p className="font-medium text-sm">Kimlik Kartı</p>
-              </Link>
-              
-              <Link href="/vize-fotografi" className="p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <div className="w-8 h-10 bg-purple-600 rounded-sm flex items-center justify-center">
-                    <div className="w-5 h-5 bg-white rounded-full"></div>
-                  </div>
-                </div>
-                <p className="font-medium text-sm">Vize Başvurusu</p>
-              </Link>
+              <DocumentIcon 
+                href="/kimlik-karti-fotografi" 
+                title="Kimlik Kartı" 
+                bgColor="red" 
+                iconColor="red" 
+              />
             </div>
             
             <div className="mt-6">

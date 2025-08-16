@@ -36,7 +36,7 @@ export default function KullanimSartlariPage() {
                 <li>Pasaport fotoğrafları (ICAO 9303 standardı)</li>
                 <li>Ehliyet fotoğrafları</li>
                 <li>Kimlik kartı fotoğrafları</li>
-                <li>Vize başvuru fotoğrafları</li>
+
                 <li>Öğrenci kimlik kartı fotoğrafları</li>
                 <li>İş başvuru fotoğrafları</li>
               </ul>

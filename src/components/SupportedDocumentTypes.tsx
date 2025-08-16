@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
 import Link from 'next/link';
 
 interface DocumentType {
@@ -30,24 +29,17 @@ const initialDocumentTypes: DocumentType[] = [
     bgColor: 'bg-green-50',
     borderColor: 'border-green-200'
   },
-  {
-    id: 'vize',
-    name: 'Vize Başvurusu',
-    slug: 'vize-fotografi',
-    color: 'bg-purple-500',
-    bgColor: 'bg-purple-50',
-    borderColor: 'border-purple-200'
-  },
+
   {
     id: 'kimlik',
-    name: 'Kimlik Kartı',
+    name: 'T.C. Kimlik Kartı',
     slug: 'kimlik-karti-fotografi',
     color: 'bg-red-500',
     bgColor: 'bg-red-50',
     borderColor: 'border-red-200'
   },
   {
-    id: 'ogrenci-karti',
+    id: 'ogrenci',
     name: 'Öğrenci Kartı',
     slug: 'ogrenci-karti-fotografi',
     color: 'bg-orange-500',
@@ -55,12 +47,20 @@ const initialDocumentTypes: DocumentType[] = [
     borderColor: 'border-orange-200'
   },
   {
-    id: 'is-basvurusu',
-    name: 'İş Başvurusu',
-    slug: 'is-basvuru-fotografi',
+    id: 'osym',
+    name: 'ÖSYM Sınavları',
+    slug: 'osym-sinav-fotografi',
     color: 'bg-indigo-500',
     bgColor: 'bg-indigo-50',
     borderColor: 'border-indigo-200'
+  },
+  {
+    id: 'is-basvuru',
+    name: 'İş Başvurusu',
+    slug: 'is-basvuru-fotografi',
+    color: 'bg-teal-500',
+    bgColor: 'bg-teal-50',
+    borderColor: 'border-teal-200'
   }
 ];
 
@@ -68,19 +68,20 @@ export default function SupportedDocumentTypes() {
   const [documentTypes] = useState<DocumentType[]>(initialDocumentTypes);
 
   return (
-    <Card className="p-8">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        {documentTypes.map((type) => (
-          <Link key={type.id} href={`/${type.slug}`} className="text-center group cursor-pointer relative block">
-            <div className={`w-16 h-16 ${type.bgColor} rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:scale-105 transition-transform relative border ${type.borderColor}`}>
-              <div className={`w-10 h-12 ${type.color} rounded-sm flex items-center justify-center`}>
-                <div className="w-6 h-6 bg-white rounded-full"></div>
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+      {documentTypes.map((type) => (
+        <div key={type.id} className="group">
+          <Link href={`/${type.slug}`} className="block">
+            <div className={`relative w-full aspect-square ${type.bgColor} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-105 group-hover:shadow-lg transition-all duration-300 border-2 ${type.borderColor} overflow-hidden`}>
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className={`w-12 h-16 ${type.color} rounded-lg flex items-center justify-center shadow-lg relative z-10`}>
+                <div className="w-8 h-8 bg-white rounded-full shadow-inner"></div>
               </div>
             </div>
-            <p className="font-medium text-sm">{type.name}</p>
+            <h3 className="font-semibold text-center text-gray-800 group-hover:text-blue-600 transition-colors duration-300">{type.name}</h3>
           </Link>
-        ))}
-      </div>
-    </Card>
+        </div>
+      ))}
+    </div>
   );
 }

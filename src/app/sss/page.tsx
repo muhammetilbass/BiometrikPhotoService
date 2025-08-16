@@ -20,7 +20,7 @@ const sorular: SoruCevap[] = [
   {
     id: 'hangi-belgeler',
     soru: 'Hangi belgeler için biyometrik fotoğraf oluşturabilirim?',
-    cevap: 'Pasaport, ehliyet, ÖSYM sınavları, vize başvuruları, ikametgâh, öğrenci belgesi ve iş başvuruları gibi birçok resmî belge için uygun biyometrik fotoğraf oluşturabilirsiniz.',
+    cevap: 'Pasaport, ehliyet, ÖSYM sınavları, ikametgâh, öğrenci belgesi ve iş başvuruları gibi birçok resmî belge için uygun biyometrik fotoğraf oluşturabilirsiniz.',
     kategori: 'genel'
   },
   {

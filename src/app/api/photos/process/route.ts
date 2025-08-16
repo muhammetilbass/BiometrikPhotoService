@@ -17,7 +17,6 @@ export async function POST(request: Request) {
     // Fotoğraf boyutlarını belirle
     const dimensions = {
       'pasaport': { width: 600, height: 600 },
-      'vize': { width: 600, height: 600 },
       'kimlik': { width: 600, height: 600 },
       'ehliyet': { width: 600, height: 600 }
     };
@@ -60,4 +59,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-} 
+}
